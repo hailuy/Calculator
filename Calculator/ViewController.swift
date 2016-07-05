@@ -1,5 +1,3 @@
-
-
 //  ViewController.swift
 //  Calculator
 //
@@ -18,48 +16,38 @@ class ViewController: UIViewController {
     var firstNumber : Double = 0.0
     var operation = ""
     var stack : String = ""
-    //    var operandStack = Array<Double>()
-    
-    
     
     let opa = [
         "(": (prec: 5, rAssoc: false),
         ")": (prec: 5, rAssoc: false),
-        "^": (prec: 4, rAssoc: true),
+        "^": (prec: 4, rAssoc: false),
         "√": (prec: 4, rAssoc: true),
-        "sin": (prec: 3, rAssoc: false),
-        "cos": (prec: 3, rAssoc: false),
-        "tan": (prec: 3, rAssoc: false),
-        "1/n": (prec: 3, rAssoc: false),
-        "ln": (prec: 3, rAssoc: true),
+        "sin": (prec: 4, rAssoc: true),
+        "cos": (prec: 4, rAssoc: true),
+        "tan": (prec: 4, rAssoc: true),
+        "log": (prec: 4, rAssoc: true),
+        "ln": (prec: 4, rAssoc: true),
         "*": (prec: 3, rAssoc: false),
         "/": (prec: 3, rAssoc: false),
         "!": (prec: 3, rAssoc: false),
         "+": (prec: 2, rAssoc: false),
-        "-": (prec: 2, rAssoc: false),
-        ]
+        "-": (prec: 2, rAssoc: false)
+    ]
     
     func rpn(tokens : [String]) -> [String] {
-        //        var rpn : [String] = []
         var t = LinkedList<String>()
-        // var p : LinkedListNode<String>!
-        
         var token = tokens.filter() {
             (x) -> Bool in
             !x.isEmpty
         }
         
         for i in 0...token.count-1 {
-            // p.value = tokens[i]
             print(token[i])
             t.append(token[i])
             
         }
         
         var rpn = LinkedList<String>()
-        //        var e : Array<String> = []
-        //        e = rpn1
-        //        var stack : [String] = [] // holds operators and left parenthesis
         var stac = LinkedList<String>()
         for i in 0...t.count-1  {
             switch t[i] {
@@ -76,7 +64,6 @@ class ViewController: UIViewController {
                         rpn.append(op)
                         if t.next(i) == nil {
                         } // add operator to result
-                            //print("add operator",rpn)
                         else {
                             break
                         }
@@ -86,7 +73,6 @@ class ViewController: UIViewController {
                 if let o1 = opa[t[i]] { // token is an operator?
                     if stac.count > 0 {
                         for op in 0...stac.count - 1 {
-                            //print("reverse",stac.reverse())
                             if let o2 = opa[stac[stac.count - 1 - op]] {
                                 if !(o1.prec > o2.prec || (o1.prec == o2.prec && o1.rAssoc)) {
                                     // top item is an operator that needs to come off
@@ -104,21 +90,12 @@ class ViewController: UIViewController {
                     stac.append(t[i]) // push operator (the new one) to stack
                     print("new",stac)
                 } else { // token is not an operator
-                    //                    while
                     rpn.append(t[i])
                     // add operand to result
                     print("add operand",rpn)
                 }
             }
         }
-        //            print(stack)
-        //        while stack != [] {
-        //            stack1.append(stack.popLast()!)
-        //        }
-        //        print(rpn)
-        //        while rpn != [] {
-        //            rpn1.append(rpn.popLast()!)
-        //        }
         var j : [String] = []
         if rpn.count > 0 {
             for i in 0...rpn.count - 1 {
@@ -137,20 +114,26 @@ class ViewController: UIViewController {
         //return rpn + stac
         return j
     }
-    
-    
-    
-    //@IBOutlet var calculatorDisplay: UILabel!
+
+    func dotTapped(sender: UIButton){
+        isTypingNumber = false
+        operation = sender.currentTitle!
+        if stack == "" {
+            stack += "0"
+        }
+        stack += operation
+        calculatorDisplay.text = stack
+    }
     
     func numberTapped(sender: UIButton) {
-        
+        stack.removeAll()
         let number = sender.currentTitle!
         stack += number
         
         if isTypingNumber {
-            calculatorDisplay.text = stack//calculatorDisplay.text! + number
+            calculatorDisplay.text = stack
         } else {
-            calculatorDisplay.text = stack//number
+            calculatorDisplay.text = stack
             isTypingNumber = true
         }
     }
@@ -158,41 +141,38 @@ class ViewController: UIViewController {
     func calculationTapped(sender: UIButton) {
         isTypingNumber = false
         stack += " "
-        //        firstNumber = Int(calculatorDisplay.text!)!
         operation = sender.currentTitle!
         stack += operation
-        calculatorDisplay.text = stack//calculatorDisplay.text! + operation
+        calculatorDisplay.text = stack
         stack += " "
     }
     func factorial(n: Double) -> Double {
         if n >= 0 {
             return n == 0 ? 1 : n * self.factorial(n - 1)
         } else {
-            return 0 / 0
+            return 0
         }
     }
     func equalTapped(sender: UIButton) {
         isTypingNumber = false
-        let arr : [String] = stack.componentsSeparatedByString(" ")// = stack.joinWithSeparator(" ")
-        //            arr.componentsSeparatedByString(" ")
-        var tem : [String] = rpn(arr)//
+        var tem : [String] = rpn(stack.componentsSeparatedByString(" "))
         tem = tem.filter() {
             (x) -> Bool in
             !x.isEmpty
         }
         tem = tem.filter({$0 != "("})
-        //        var arr = rpn.spli
-        //        arr.
-        var t : [Double] = [] //[(0.0),(8.0)]
+        
+        if tem.count == 1 {
+            calculatorDisplay.text = tem[0]
+            return
+        }
+        
+        var t : [Double] = []
         var j : Int = 0
-        //        var tem : [String]
         let lastIndex : Int = tem.endIndex.advancedBy(-1)
         
         var result : Double = 0.0
         for itr in 0...lastIndex {
-            //            arr = tem
-            //            lastIndex
-            //            var lastInde = tem.endIndex.advancedBy(-1)
             if (tem[itr] != "^" &&
                 tem[itr] != "*" &&
                 tem[itr] != "/" &&
@@ -202,73 +182,15 @@ class ViewController: UIViewController {
                 tem[itr] != "sin" &&
                 tem[itr] != "cos" &&
                 tem[itr] != "tan" &&
-                tem[itr] != "1/n" &&
+                tem[itr] != "log" &&
                 tem[itr] != "ln" &&
                 tem[itr] != "!") {
-                print(tem[itr])
-                //                    if t[0] == 0 {
-                //                        t[0] = (tem[lastIndex] as NSString).doubleValue
-                //                    }
-                //                    else {
-                //                    if tem[itr] == "e" {
-                //
-                //                    }
-                //
+                print("tem[itr]",tem[itr])
                 t.append((tem[itr] as NSString).doubleValue)
-                //                    }
-                print(tem)
-                //                    print(tem)
-                print(t)
-                //                    var ope : String = arr[lastIndex]
-                //                    var lastInde = tem.endIndex.advancedBy(-1)
-                //                    tem = tem.removeAtIndex(lastInde)
-                //                    tem = tem.substringToIndex(lastInde)
-                //                    arr = tem.componentsSeparatedByString(" ")
-                //                    firstNumber = (arr[arr.endIndex.advancedBy(-1)] as NSString).doubleValue
-                //                    arr = tem.componentsSeparatedByString(" ")
-                //                    secondNumber = (arr[arr.endIndex.advancedBy(-1)] as NSString).doubleValue
-                //                                       tem = tem.dropLast(1)
-                //                    t = tem.popLast()
+                print("tem",tem)
+                print("t",t)
                 continue
             }
-                //
-                //            else if
-                //                arr[lastIndex] == "√" ||
-                //                arr[lastIndex] == "sin" ||
-                //                arr[lastIndex] == "cos" ||
-                //                arr[lastIndex] == "tan" ||
-                //                arr[lastIndex] == "ln" ||
-                //                arr[lastIndex] == "log" ||
-                //                arr[lastIndex] == "!" {
-                //                switch operation {
-                //                    case "√":
-                //                        if operandStack.count >= 1 {
-                //                            return sqrt(self.operandStack.removeLast())
-                //                        }
-                //
-                //                    case "sin":
-                //                        if operandStack.count >= 1 {
-                //                            return sin(self.operandStack.removeLast() * M_PI / 180)
-                //                    }
-                //
-                //                    case "cos":
-                //                        if operandStack.count >= 1 {
-                //                            return cos(self.operandStack.removeLast() * M_PI / 180)
-                //                        }
-                //
-                //                    case "tan":
-                //                        if operandStack.count >= 1 {
-                //                            return tan(self.operandStack.removeLast() * M_PI / 180)
-                //                        }
-                //
-                //                    case "log":
-                //                        if operandStack.count >= 1 {
-                //                            return log(self.operandStack.removeLast())
-                //                        }
-                //
-                //                    default:break
-                //                }
-                //            }
             else {
                 
                 print("1")
@@ -278,17 +200,17 @@ class ViewController: UIViewController {
                     tem[itr] == "+" ||
                     tem[itr] == "-") {
                     
-                    print("2")
+                    print("2??")
                     j = 2
                 }
                 else if
                     tem[itr] == "√" ||
-                        tem[itr] == "ln" ||
-                        tem[itr] == "sin" ||
-                        tem[itr] == "cos" ||
-                        tem[itr] == "tan" ||
-                        tem[itr] == "1/n" ||
-                        tem[itr] == "!" {
+                    tem[itr] == "ln" ||
+                    tem[itr] == "log" ||
+                    tem[itr] == "sin" ||
+                    tem[itr] == "cos" ||
+                    tem[itr] == "tan" ||
+                    tem[itr] == "!" {
                     
                     print("3")
                     j = 1
@@ -315,9 +237,8 @@ class ViewController: UIViewController {
                         else if tem[itr] == "+" {
                             result = secondNumber + firstNumber
                         }
-                        else if tem[itr] == "−" {
+                        else if tem[itr] == "-" {
                             result =  firstNumber - secondNumber
-                            //result = firstNumber
                         }
                         else {
                             calculatorDisplay.text = "error"
@@ -330,6 +251,9 @@ class ViewController: UIViewController {
                         if tem[itr] == "√" {
                             result = sqrt(secondNumber)
                         }
+                        else if tem[itr] == "log" {
+                            result = log(secondNumber) / log(10)
+                        }
                         else if tem[itr] == "sin" {
                             result =  sin(secondNumber * M_PI / 180)
                         }
@@ -339,14 +263,11 @@ class ViewController: UIViewController {
                         else if tem[itr] == "tan" {
                             result = tan(secondNumber * M_PI / 180)
                         }
-                        else if tem[itr] == "1/n" {
-                            result = 1.0 / secondNumber
-                        }
                         else if tem[itr] == "!" {
                             result = factorial(secondNumber)
                         }
                         else if tem[itr] == "ln" {
-                            result = log(secondNumber) // log(secondNumber)
+                            result = log(secondNumber)
                         }
                         else {
                             calculatorDisplay.text = "error"
@@ -361,217 +282,327 @@ class ViewController: UIViewController {
             }
         }
         if t.count == 1 {
-            calculatorDisplay.text = "\(result)"
-            stack.removeAll()
+            if result % 1 == 0 {
+                stack = String(format:"%.0f", result)
+                calculatorDisplay.text = stack
+            }
+            else {
+                calculatorDisplay.text = "\(result)"
+                stack = "\(result)"
+            }
+            if calculatorDisplay.text == "0" {
+                stack.removeAll()
+            }
         }
         else {
             calculatorDisplay.text = "error"
             stack.removeAll()
         }
         
-        
-        //        var temp : Double = (arr[lastIndex] as NSString).doubleValue
-        
-        //        operandStack = Array(tem)
-        //        let result = operate(operandStack)
-        //        secondNumber = Int(calculatorDisplay.text!)!
-        
-        //        if operation == "+" {
-        //            result = firstNumber + secondNumber
-        //        } else if operation == "*" {
-        //            result = firstNumber * secondNumber
-        //        } else if operation == "-" {
-        //            result = firstNumber - secondNumber
-        //        } else if operation == "/" {
-        //            result = firstNumber / secondNumber
-        //        }
-        //
-        
     }
     
     func backspaceTapped(sender: UIButton) {
-        //        stack.dropFirst()
-        //        let int = calculatorDisplay.text!.lengthOfBytesUsingEncoding(<#T##encoding: NSStringEncoding##NSStringEncoding#>) / 8
         var te : String = stack
-        //        var index = 0
-        //        var temp :String = ""\
         var i : Character = "?"
         if te.isEmpty == false {
             var lastInde = te.endIndex.advancedBy(-1)
             repeat {
                 lastInde = te.endIndex.advancedBy(-1)
                 i = te[lastInde]
-                te = te.substringToIndex(lastInde) //or tem.removeAtIndex(tem.endIndex.predecessor())
+                te = te.substringToIndex(lastInde)
                 stack = te
             }while(i == " ");
         }
         
-        //        let s = tem[lastIndex]
         calculatorDisplay.text = stack
-        //        for var i = 0;i < (int - 1);i++ {
-        //            temp = tem.startIndex.advancedBy(i)
-        ////            temp = tem[index]
-        //            calculatorDisplay.text = calculatorDisplay.text! + temp
-        //        }
     }
     
     func clearTapped(sender: UIButton) {
-        //stack = ""
         stack.removeAll(keepCapacity: false)
-        calculatorDisplay.text?.removeAll()// = ""
+        calculatorDisplay.text?.removeAll()
     }
     
-    var calculatorDisplay = UILabel(frame: CGRectMake(10,10,200,20))
+    var calculatorDisplay : UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        
+        let width = self.view.frame.size.width / 5
+        let height = (self.view.frame.size.height - 200) / 6
+        
+        let borderAlpha : CGFloat = 0.3
+
+
+        let bottom = UILabel(frame: CGRectMake(0,0,width * 5,200))
+        bottom.backgroundColor = UIColor(red:253/255,green:250/255,blue:225/255,alpha:0.8)
+        self.view.addSubview(bottom)
+        
+        calculatorDisplay = UILabel(frame: CGRectMake(10,10,width * 5 - 20,180))
+        calculatorDisplay.font = UIFont.systemFontOfSize(40)
+        calculatorDisplay.backgroundColor = UIColor.clearColor()
+        calculatorDisplay.textAlignment = .Right
         
         UIGraphicsBeginImageContext(self.view.frame.size)
         UIImage(named: "background")!.drawInRect(CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height))
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         self.view.backgroundColor = UIColor(patternImage: image)
-        
         self.view.addSubview(calculatorDisplay)
         
-        var factorial = UIButton(frame: CGRectMake(35,10,40,40))
+        let factorial = UIButton(frame: CGRectMake(0,200,width,height))
         factorial.setTitle("!", forState: UIControlState.Normal)
-        factorial.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        factorial.backgroundColor = UIColor(red:16/255,green:240/255,blue:197/255,alpha:0.8)
+        factorial.layer.borderWidth = 1.0
+        factorial.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        factorial.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        factorial.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(factorial)
         
-        var square = UIButton(frame: CGRectMake(35,65,40,40))
+        let square = UIButton(frame: CGRectMake(width,200,width,height))
         square.setTitle("^", forState: UIControlState.Normal)
-        square.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        square.backgroundColor = UIColor(red:16/255,green:240/255,blue:197/255,alpha:0.8)
+        square.layer.borderWidth = 1.0
+        square.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        square.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        square.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(square)
         
-        var radical = UIButton(frame: CGRectMake(35,110,40,40))
+        let radical = UIButton(frame: CGRectMake(width * 2,200,width,height))
         radical.setTitle("√", forState: UIControlState.Normal)
-        radical.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        radical.backgroundColor = UIColor(red:16/255,green:240/255,blue:197/255,alpha:0.8)
+        radical.layer.borderWidth = 1.0
+        radical.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        radical.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        radical.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(radical)
         
-        var clear = UIButton(frame: CGRectMake(35,155,40,40))
+        let clear = UIButton(frame: CGRectMake(width * 3,200,width * 2,height))
         clear.setTitle("C", forState: UIControlState.Normal)
-        clear.addTarget(self, action: "clearTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        clear.backgroundColor = UIColor(red:16/255,green:240/255,blue:197/255,alpha:0.8)
+        clear.layer.borderWidth = 1.0
+        clear.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        clear.addTarget(self, action: #selector(ViewController.clearTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        clear.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(clear)
         
-        var sin = UIButton(frame: CGRectMake(80,10,40,40))
+        let sin = UIButton(frame: CGRectMake(0,200 + height,width,height))
         sin.setTitle("sin", forState: UIControlState.Normal)
-        sin.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        sin.backgroundColor = UIColor(red:16/255,green:235/255,blue:197/255,alpha:0.8)
+        sin.layer.borderWidth = 1.0
+        sin.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        sin.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        sin.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(sin)
         
-        var left = UIButton(frame: CGRectMake(80,65,40,40))
+        let left = UIButton(frame: CGRectMake(width,200 + height,width,height))
         left.setTitle("(", forState: UIControlState.Normal)
-        left.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        left.backgroundColor = UIColor(red:16/255,green:235/255,blue:197/255,alpha:0.8)
+        left.layer.borderWidth = 1.0
+        left.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        left.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        left.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(left)
         
-        var right = UIButton(frame: CGRectMake(80,110,40,40))
+        let right = UIButton(frame: CGRectMake(width * 2,200 + height,width,height))
         right.setTitle(")", forState: UIControlState.Normal)
-        right.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        right.backgroundColor = UIColor(red:16/255,green:235/255,blue:197/255,alpha:0.8)
+        right.layer.borderWidth = 1.0
+        right.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        right.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        right.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(right)
         
-        var back = UIButton(frame: CGRectMake(80,155,40,40))
+        let back = UIButton(frame: CGRectMake(width * 3,200 + height,width * 2,height))
         back.setTitle("⬅︎", forState: UIControlState.Normal)
-        back.addTarget(self, action: "backspaceTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        back.backgroundColor = UIColor(red:16/255,green:235/255,blue:197/255,alpha:0.8)
+        back.layer.borderWidth = 1.0
+        back.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        back.addTarget(self, action: #selector(ViewController.backspaceTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        back.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(back)
         
-        var cos = UIButton(frame: CGRectMake(125,10,40,40))
+        let cos = UIButton(frame: CGRectMake(0,200 + height * 2,width,height))
         cos.setTitle("cos", forState: UIControlState.Normal)
-        cos.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        cos.backgroundColor = UIColor(red:16/255,green:235/255,blue:197/255,alpha:0.8)
+        cos.layer.borderWidth = 1.0
+        cos.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        cos.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        cos.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(cos)
         
-        var num7 = UIButton(frame: CGRectMake(125,65,40,40))
+        let num7 = UIButton(frame: CGRectMake(width,200 + height * 2,width,height))
         num7.setTitle("7", forState: UIControlState.Normal)
-        num7.addTarget(self, action: "numberTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        num7.backgroundColor = UIColor(red:16/255,green:230/255,blue:197/255,alpha:0.8)
+        num7.layer.borderWidth = 1.0
+        num7.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        num7.addTarget(self, action: #selector(ViewController.numberTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        num7.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(num7)
         
-        var num8 = UIButton(frame: CGRectMake(125,110,40,40))
+        let num8 = UIButton(frame: CGRectMake(width * 2,200 + height * 2,width,height))
         num8.setTitle("8", forState: UIControlState.Normal)
-        num8.addTarget(self, action: "numberTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        num8.backgroundColor = UIColor(red:16/255,green:230/255,blue:197/255,alpha:0.8)
+        num8.layer.borderWidth = 1.0
+        num8.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        num8.addTarget(self, action: #selector(ViewController.numberTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        num8.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(num8)
         
-        var num9 = UIButton(frame: CGRectMake(125,155,40,40))
+        let num9 = UIButton(frame: CGRectMake(width * 3,200 + height * 2,width,height))
         num9.setTitle("9", forState: UIControlState.Normal)
-        num9.addTarget(self, action: "numberTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        num9.backgroundColor = UIColor(red:16/255,green:230/255,blue:197/255,alpha:0.8)
+        num9.layer.borderWidth = 1.0
+        num9.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        num9.addTarget(self, action: #selector(ViewController.numberTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        num9.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(num9)
         
-        var divide = UIButton(frame: CGRectMake(125,155,40,40))
+        let divide = UIButton(frame: CGRectMake(width * 4,200 + height * 2,width,height))
         divide.setTitle("/", forState: UIControlState.Normal)
-        divide.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        divide.backgroundColor = UIColor(red:16/255,green:230/255,blue:197/255,alpha:0.8)
+        divide.layer.borderWidth = 1.0
+        divide.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        divide.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        divide.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(divide)
         
-        var tan = UIButton(frame: CGRectMake(170,10,40,40))
+        let tan = UIButton(frame: CGRectMake(0,200 + height * 3,width,height))
         tan.setTitle("tan", forState: UIControlState.Normal)
-        tan.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        tan.backgroundColor = UIColor(red:16/255,green:225/255,blue:197/255,alpha:0.8)
+        tan.layer.borderWidth = 1.0
+        tan.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        tan.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        tan.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(tan)
         
-        var num4 = UIButton(frame: CGRectMake(170,65,40,40))
+        let num4 = UIButton(frame: CGRectMake(width,200 + height * 3,width,height))
         num4.setTitle("4", forState: UIControlState.Normal)
-        num4.addTarget(self, action: "numberTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        num4.backgroundColor = UIColor(red:16/255,green:225/255,blue:197/255,alpha:0.8)
+        num4.layer.borderWidth = 1.0
+        num4.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        num4.addTarget(self, action: #selector(ViewController.numberTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        num4.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(num4)
         
-        var num5 = UIButton(frame: CGRectMake(170,110,40,40))
+        let num5 = UIButton(frame: CGRectMake(width * 2,200 + height * 3,width,height))
         num5.setTitle("5", forState: UIControlState.Normal)
-        num5.addTarget(self, action: "numberTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        num5.backgroundColor = UIColor(red:16/255,green:225/255,blue:197/255,alpha:0.8)
+        num5.layer.borderWidth = 1.0
+        num5.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        num5.addTarget(self, action: #selector(ViewController.numberTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        num5.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(num5)
         
-        var num6 = UIButton(frame: CGRectMake(170,155,40,40))
+        let num6 = UIButton(frame: CGRectMake(width * 3,200 + height * 3,width,height))
         num6.setTitle("6", forState: UIControlState.Normal)
-        num6.addTarget(self, action: "numberTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        num6.backgroundColor = UIColor(red:16/255,green:225/255,blue:197/255,alpha:0.8)
+        num6.layer.borderWidth = 1.0
+        num6.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        num6.addTarget(self, action: #selector(ViewController.numberTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        num6.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(num6)
         
-        var multiply = UIButton(frame: CGRectMake(170,155,40,40))
+        let multiply = UIButton(frame: CGRectMake(width * 4,200 + height * 3,width,height))
         multiply.setTitle("*", forState: UIControlState.Normal)
-        multiply.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        multiply.backgroundColor = UIColor(red:16/255,green:225/255,blue:197/255,alpha:0.8)
+        multiply.layer.borderWidth = 1.0
+        multiply.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        multiply.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        multiply.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(multiply)
         
-        var reciprocal = UIButton(frame: CGRectMake(215,10,40,40))
-        reciprocal.setTitle("1/n", forState: UIControlState.Normal)
-        reciprocal.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
-        self.view.addSubview(reciprocal)
         
-        var num1 = UIButton(frame: CGRectMake(215,65,40,40))
+        
+        let log = UIButton(frame: CGRectMake(0,200 + height * 4,width,height))
+        log.setTitle("log", forState: UIControlState.Normal)
+        log.backgroundColor = UIColor(red:16/255,green:220/255,blue:197/255,alpha:0.8)
+        log.layer.borderWidth = 1.0
+        log.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        log.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        log.titleLabel!.font = UIFont.systemFontOfSize(30)
+        self.view.addSubview(log)
+        
+        let num1 = UIButton(frame: CGRectMake(width,200 + height * 4,width,height))
         num1.setTitle("1", forState: UIControlState.Normal)
-        num1.addTarget(self, action: "numberTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        num1.backgroundColor = UIColor(red:16/255,green:220/255,blue:197/255,alpha:0.8)
+        num1.layer.borderWidth = 1.0
+        num1.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        num1.addTarget(self, action: #selector(ViewController.numberTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        num1.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(num1)
         
-        var num2 = UIButton(frame: CGRectMake(215,110,40,40))
+        let num2 = UIButton(frame: CGRectMake(width * 2,200 + height * 4,width,height))
         num2.setTitle("2", forState: UIControlState.Normal)
-        num2.addTarget(self, action: "numberTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        num2.backgroundColor = UIColor(red:16/255,green:220/255,blue:197/255,alpha:0.8)
+        num2.layer.borderWidth = 1.0
+        num2.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        num2.addTarget(self, action: #selector(ViewController.numberTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        num2.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(num2)
         
-        var num3 = UIButton(frame: CGRectMake(215,155,40,40))
+        let num3 = UIButton(frame: CGRectMake(width * 3,200 + height * 4,width,height))
         num3.setTitle("3", forState: UIControlState.Normal)
-        num3.addTarget(self, action: "numberTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        num3.backgroundColor = UIColor(red:16/255,green:220/255,blue:197/255,alpha:0.8)
+        num3.layer.borderWidth = 1.0
+        num3.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        num3.addTarget(self, action: #selector(ViewController.numberTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        num3.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(num3)
         
-        var minus = UIButton(frame: CGRectMake(215,155,40,40))
+        let minus = UIButton(frame: CGRectMake(width * 4,200 + height * 4,width,height))
         minus.setTitle("-", forState: UIControlState.Normal)
-        minus.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        minus.backgroundColor = UIColor(red:16/255,green:220/255,blue:197/255,alpha:0.8)
+        minus.layer.borderWidth = 1.0
+        minus.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        minus.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        minus.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(minus)
         
-        var ln = UIButton(frame: CGRectMake(260,10,40,40))
+        let ln = UIButton(frame: CGRectMake(0,200 + height * 5,width,height))
         ln.setTitle("ln", forState: UIControlState.Normal)
-        ln.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        ln.backgroundColor = UIColor(red:16/255,green:215/255,blue:197/255,alpha:0.8)
+        ln.layer.borderWidth = 1.0
+        ln.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        ln.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        ln.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(ln)
         
-        var num0 = UIButton(frame: CGRectMake(260,65,40,40))
+        let num0 = UIButton(frame: CGRectMake(width,200 + height * 5,width,height))
         num0.setTitle("0", forState: UIControlState.Normal)
-        num0.addTarget(self, action: "numberTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        num0.backgroundColor = UIColor(red:16/255,green:215/255,blue:197/255,alpha:0.8)
+        num0.layer.borderWidth = 1.0
+        num0.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        num0.addTarget(self, action: #selector(ViewController.numberTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        num0.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(num0)
         
-        var dot = UIButton(frame: CGRectMake(260,110,40,40))
+        let dot = UIButton(frame: CGRectMake(width * 2,200 + height * 5,width,height))
         dot.setTitle(".", forState: UIControlState.Normal)
-        dot.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        dot.backgroundColor = UIColor(red:16/255,green:215/255,blue:197/255,alpha:0.8)
+        dot.layer.borderWidth = 1.0
+        dot.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        dot.addTarget(self, action: #selector(ViewController.dotTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        dot.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(dot)
         
-        var equal = UIButton(frame: CGRectMake(260,155,40,40))
+        let equal = UIButton(frame: CGRectMake(width * 3,200 + height * 5,width,height))
         equal.setTitle("=", forState: UIControlState.Normal)
-        equal.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        equal.backgroundColor = UIColor(red:16/255,green:215/255,blue:197/255,alpha:0.8)
+        equal.layer.borderWidth = 1.0
+        equal.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        equal.addTarget(self, action: #selector(ViewController.equalTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        equal.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(equal)
         
-        var plus = UIButton(frame: CGRectMake(260,155,40,40))
+        let plus = UIButton(frame: CGRectMake(width * 4,200 + height * 5,width,height))
         plus.setTitle("+", forState: UIControlState.Normal)
-        plus.addTarget(self, action: "calculationTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        plus.backgroundColor = UIColor(red:16/255,green:215/255,blue:197/255,alpha:0.8)
+        plus.layer.borderWidth = 1.0
+        plus.layer.borderColor = UIColor(white: 1.0,alpha: borderAlpha).CGColor
+        plus.addTarget(self, action: #selector(ViewController.calculationTapped(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        plus.titleLabel!.font = UIFont.systemFontOfSize(30)
         self.view.addSubview(plus)
     }
     
