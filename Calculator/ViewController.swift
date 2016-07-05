@@ -17,6 +17,7 @@ class ViewController: UIViewController {
     var operation = ""
     var stack : String = ""
     
+    //A dict containing all the operators
     let opa = [
         "(": (prec: 5, rAssoc: false),
         ")": (prec: 5, rAssoc: false),
@@ -36,11 +37,14 @@ class ViewController: UIViewController {
     
     func rpn(tokens : [String]) -> [String] {
         var t = LinkedList<String>()
+        
+        //throw away all the blank space
         var token = tokens.filter() {
             (x) -> Bool in
             !x.isEmpty
         }
         
+        //put [String] into LinkedList<String>()
         for i in 0...token.count-1 {
             print(token[i])
             t.append(token[i])
@@ -60,7 +64,7 @@ class ViewController: UIViewController {
                     if op == "(" {
                         print("discard",stac)
                         break // discard "("
-                    } else {
+                    } else {    //the added code(probably this area,can't really remember
                         rpn.append(op)
                         if t.next(i) == nil {
                         } // add operator to result
@@ -97,6 +101,8 @@ class ViewController: UIViewController {
             }
         }
         var j : [String] = []
+        
+        //put LinkedList<String>() back to [String]
         if rpn.count > 0 {
             for i in 0...rpn.count - 1 {
                 j.append(rpn.nodeAtIndex(i)!.value)
@@ -115,6 +121,7 @@ class ViewController: UIViewController {
         return j
     }
 
+//"." if input ".8" automatically change to "0.8",else just add the dot
     func dotTapped(sender: UIButton){
         isTypingNumber = false
         operation = sender.currentTitle!
@@ -124,7 +131,8 @@ class ViewController: UIViewController {
         stack += operation
         calculatorDisplay.text = stack
     }
-    
+
+// push operarand to the stack    
     func numberTapped(sender: UIButton) {
         stack.removeAll()
         let number = sender.currentTitle!
@@ -138,6 +146,7 @@ class ViewController: UIViewController {
         }
     }
     
+    //push opeartor to the stack
     func calculationTapped(sender: UIButton) {
         isTypingNumber = false
         stack += " "
@@ -146,6 +155,8 @@ class ViewController: UIViewController {
         calculatorDisplay.text = stack
         stack += " "
     }
+    
+    //factorial calculation,recursively
     func factorial(n: Double) -> Double {
         if n >= 0 {
             return n == 0 ? 1 : n * self.factorial(n - 1)
@@ -153,15 +164,22 @@ class ViewController: UIViewController {
             return 0
         }
     }
+    
+    //when tapped "=",start the calculation
     func equalTapped(sender: UIButton) {
         isTypingNumber = false
+        
+        //seperate every operator or operand in stack by " ",change them into postfix
         var tem : [String] = rpn(stack.componentsSeparatedByString(" "))
+        
+        //throw away " " and "("
         tem = tem.filter() {
             (x) -> Bool in
             !x.isEmpty
         }
         tem = tem.filter({$0 != "("})
         
+        //if only 1 input,output directly
         if tem.count == 1 {
             calculatorDisplay.text = tem[0]
             return
@@ -193,6 +211,8 @@ class ViewController: UIViewController {
             }
             else {
                 
+                //needs 2 operands or 1 operand
+                
                 print("1")
                 if (tem[itr] == "^" ||
                     tem[itr] == "/" ||
@@ -215,6 +235,8 @@ class ViewController: UIViewController {
                     print("3")
                     j = 1
                 }
+                
+                //if operand is not enough,error,else do the calculation
                 if t.count < j {
                     calculatorDisplay.text = "error"
                     stack.removeAll()
@@ -301,6 +323,7 @@ class ViewController: UIViewController {
         
     }
     
+    //in the vaild range,each time kill one char
     func backspaceTapped(sender: UIButton) {
         var te : String = stack
         var i : Character = "?"
@@ -326,15 +349,13 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        
         
         let width = self.view.frame.size.width / 5
         let height = (self.view.frame.size.height - 200) / 6
         
         let borderAlpha : CGFloat = 0.3
 
-
+//ui
         let bottom = UILabel(frame: CGRectMake(0,0,width * 5,200))
         bottom.backgroundColor = UIColor(red:253/255,green:250/255,blue:225/255,alpha:0.8)
         self.view.addSubview(bottom)
@@ -610,6 +631,5 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
     
 }
